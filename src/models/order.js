@@ -29,12 +29,14 @@ const OrderSchema = new mongoose.Schema({
 
     quantity: {
         type: Number,
-        required: true,
+        default: 1
+        // required: true,
     },
 
     price: {
         type: Number,
-        required: true,
+        // required: true,
+        default: 0
     },
 
     totalPrice: {
