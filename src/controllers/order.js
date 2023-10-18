@@ -75,7 +75,10 @@ module.exports = {
         */
 
 
-        const data = await Order.findOne({ _id: req.params.id })
+        const data = await Order.findOne({ _id: req.params.id }).populate([
+            'userId', 
+            { path: 'pizzaId', populate: 'toppings' }
+        ] )
 
         res.status(200).send({
             error: false,
