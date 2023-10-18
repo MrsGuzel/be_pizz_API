@@ -8,6 +8,8 @@ module.exports = {
 
     isLogin: (req, res, next) => {
 
+        // return next() // permissionları pasife almak için, herşeye izin vermek için yapılan bir işlem
+
         if (req.isLogin) {
             next()
         } else {
@@ -17,6 +19,8 @@ module.exports = {
     },
 
     isAdmin: (req, res, next) => {
+
+        // return next() // permissionları pasife almak için, herşeye izin vermek için yapılan bir işlem
 
         if (req.isLogin && req.user.isAdmin) {
             next()
