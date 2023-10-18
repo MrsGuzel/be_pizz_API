@@ -20,7 +20,7 @@ const order = require('../controllers/order')
 //     .patch(permissions.isLogin, order.update)
 //     .delete(permissions.isAdmin, order.delete)
 
-app.use(permissions.isLogin) // hepsi isLogin ama delete isAdmin (kısa yol) (yazanın bir diger yolu)
+router.use(permissions.isLogin) // hepsi isLogin ama delete isAdmin (kısa yol) (yazanın bir diger yolu)
 
 router.route('/')
     .get(order.list)

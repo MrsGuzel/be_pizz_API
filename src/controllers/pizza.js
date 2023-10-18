@@ -1,14 +1,13 @@
-"use strict"
+"use strict";
 /* -------------------------------------------------------
     NODEJS EXPRESS | CLARUSWAY FullStack Team
 ------------------------------------------------------- */
 // Pizza Controller:
-const Pizza = require('../models/pizza')
+const Pizza = require("../models/pizza");
 
 module.exports = {
-
-    list: async (req, res) =>{
-          /*
+  list: async (req, res) => {
+    /*
             #swagger.tags = ["Pizzas"]
             #swagger.summary = "List Pizzas"
             #swagger.description = `
@@ -20,127 +19,129 @@ module.exports = {
                 </ul>
             `
         */
-        
-        const data = await res.getModelList(Pizza, {}, 'toppings')
 
-            res.status(200).send({
-                error: false,
-                details: await res.getModelListDetails(Pizza),
-                data
-            })
-    },
+    const data = await res.getModelList(Pizza, {}, "toppings");
 
-    create: async (req, res) =>{
-         /*
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Pizza),
+      data,
+    });
+  },
+
+  create: async (req, res) => {
+    /*
             #swagger.tags = ["Pizzas"]
             #swagger.summary = "Create Pizza"
         */
 
-        const data = await Pizza.create(req.body)
+    const data = await Pizza.create(req.body);
 
-        res.status(201).send({
-            error: false,
-            details: res.getModelListDetails(Pizza),
-            data
-        })
+    res.status(201).send({
+      error: false,
+      details: res.getModelListDetails(Pizza),
+      data,
+    });
+  },
 
-    },
-
-    read: async (req, res) =>{
-           /*
+  read: async (req, res) => {
+    /*
             #swagger.tags = ["Pizzas"]
             #swagger.summary = "Get Single Pizza"
         */
 
+    const data = await Pizza.findOne({ _id: req.params.id }).populate(
+      "toppings"
+    );
 
-        const data = await Pizza.findOne({ _id: req.params.id }).populate('toppings')
+    res.status(200).send({
+      error: false,
+      data,
+    });
+  },
 
-        res.status(200).send({
-            error: false,
-            data
-        })
-
-    },
-
-    update: async (req, res) =>{
-         /*
+  update: async (req, res) => {
+    /*
             #swagger.tags = ["Pizzas"]
             #swagger.summary = "Update Pizza"
         */
 
+    const data = await Pizza.updateOne({ _id: req.params.id }, req.body);
 
-        const data = await Pizza.updateOne({ _id: req.params.id}, req.body)
+    res.status(202).send({
+      error: false,
+      data,
+      new: await Pizza.findOne({ _id: req.params.id }),
+    });
+  },
 
-        res.status(202).send({
-            error: false,
-            data,
-            new: await Pizza.findOne({ _id: req.params.id })
-        })
-
-    },
-
-    delete: async (req, res) =>{
-         /*
+  delete: async (req, res) => {
+    /*
             #swagger.tags = ["Pizzas"]
             #swagger.summary = "Delete Pizza"
         */
 
+    const data = await Pizza.deleteOne({ _id: req.params.id });
 
-        const data = await Pizza.deleteOne({ _id: req.params.id })
+    res.status(data.deleteCount ? 204 : 404).send({
+      error: !data.deleteCount,
+      data,
+    });
+  },
 
-        res.status(data.deleteCount ? 204 : 404).send({
-            error: !data.deleteCount,
-            data
-        })
-
-
-    },
-
-    pushToppings: async (req, res) =>{
-        /*
+  // Add toppings to Pizza.toppings
+  pushToppings: async (req, res) => {
+    /*
            #swagger.tags = ["Pizzas"]
            #swagger.summary = "Add Toppings to Pizza"
        */
+    const toppings = req.body?.toppings; // objectId or [objectId]
 
-
-       const toppings = req.body?.toppings // objectId or [objectId]
-
-       // const data = await Pizza.findOne({ _id: req.params.id })
+    // const data = await Pizza.findOne({ _id: req.params.id })
     //    data.toppings.push(toppings)
     //    await data.save()
+    const data = await Pizza.updateOne(
+      { _id: req.params.id },
+      { $push: { toppings: toppings } }
+    );
+    const newData = await Pizza.findOne({ _id: req.params.id }).populate(
+      'toppings'
+    );
 
-       const data = await Pizza.updateOne({ _id: req.params.id}, { $push: { toppings: toppings } })
-       const newData = await Pizza.findOne({ _id: req.params.id}).populate('toppings')
+    res.status(202).send({
+      error: false,
+      data,
+      toppingsCount: newData.toppings.length,
+      new: newData,
+    });
+  },
 
-       res.status(202).send({
-           error: false,
-           data,
-           toppingsCount: newData.toppings.length,
-           new: newData
-        })
-    },
-
-    pullToppings: async (req, res) =>{
-        /*
+    // Remove toppings from Pizza.toppings:
+  pullToppings: async (req, res) => {
+             /*
            #swagger.tags = ["Pizzas"]
            #swagger.summary = "Remove Toppings from Pizza"
-       */
+             */
 
+    const toppings = req.body?.toppings; // objectId
 
-       const toppings = req.body?.toppings // objectId 
-
-       // const data = await Pizza.findOne({ _id: req.params.id })
+    // const data = await Pizza.findOne({ _id: req.params.id })
     //    data.toppings.pull(toppings)
     //    await data.save()
 
-       const data = await Pizza.updateOne({ _id: req.params.id}, { $pull: { toppings: toppings } })
-       const newData = await Pizza.findOne({ _id: req.params.id}).populate('toppings')
+    const data = await Pizza.updateOne(
+      { _id: req.params.id },
+      { $pull: { toppings: toppings } }
+    );
+    const newData = await Pizza.findOne({ _id: req.params.id }).populate(
+      'toppings'
+    );
 
-       res.status(202).send({
-           error: false,
-           data,
-           toppingsCount: newData.toppings.length,
-           new: newData
-        })
-    }
-}
+    res.status(202).send({
+      error: false,
+      data,
+      toppingsCount: newData.toppings.length,
+      new: newData,
+    });
+  },
+};
